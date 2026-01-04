@@ -1,5 +1,9 @@
 var searchData=
 [
-  ['wcet_5fus_0',['wcet_us',['../structnimble_1_1Device.html#a3c77e83986abba5f30854611ce77c84e',1,'nimble::Device']]],
-  ['wcet_5fviolation_1',['WCET_VIOLATION',['../cyclic__executive_8h.html#a336618b66999daac3ed7e7f422381bf5a4d30eebb3e8c675810e75e292b7e999c',1,'cyclic_executive.h']]]
+  ['references_0',['references',['../index.html#references_sec',1,'Academic &amp; Technical References'],['../index.html#resources_sec',1,'Resources &amp; References']]],
+  ['reset_1',['reset',['../classnimble_1_1CyclicExecutive.html#af6d842c3c98450e44a2ee33ecbaed59a',1,'nimble::CyclicExecutive::reset()'],['../classnimble_1_1CyclicExecutive.html#af6d842c3c98450e44a2ee33ecbaed59a',1,'nimble::CyclicExecutive::reset()']]],
+  ['resethookfn_2',['resethookfn',['../classnimble_1_1CyclicExecutive.html#a62c588baf747e330dcfd77dd05cc80e2',1,'nimble::CyclicExecutive::ResetHookFn'],['../cyclic__executive_8h.html#a73842321244c1f1e0ea9c0b96fdf74d3',1,'ResetHookFn:&#160;cyclic_executive.h']]],
+  ['resetsystem_3',['resetsystem',['../classnimble_1_1CyclicExecutive.html#a1004da574e198065c1fd6fb5143b644ba177a1250af13476fc85e764b7ab27fd1',1,'nimble::CyclicExecutive::ResetSystem'],['../cyclic__executive_8h.html#adcab3f8104944163eaade3faa7fda79fa177a1250af13476fc85e764b7ab27fd1',1,'ResetSystem:&#160;cyclic_executive.h'],['../namespacenimble.html#afb068c2dadb97f224390033902e7f4dea177a1250af13476fc85e764b7ab27fd1',1,'nimble::ResetSystem']]],
+  ['resources_20references_4',['Resources &amp; References',['../index.html#resources_sec',1,'']]],
+  ['running_5',['running',['../namespacenimble.html#a565b2da5b6f6a0e37400390a9576fd22a5bda814c4aedb126839228f1a3d92f09',1,'nimble::Running'],['../cyclic__executive_8h.html#ab17193046091e749910e3011b1b8b7baa5bda814c4aedb126839228f1a3d92f09',1,'Running:&#160;cyclic_executive.h']]]
 ];

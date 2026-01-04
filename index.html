@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Nimble - DeviceFramework: Main Page</title>
+<title>Nimble - DeviceFramework: Nimble — Device Framework for Embedded Systems</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -18,6 +18,7 @@
 <script type="text/javascript" src="search/search.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -89,10 +90,292 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 </div>
 </div>
 
-<div class="header">
-  <div class="headertitle"><div class="title">Nimble - DeviceFramework Documentation</div></div>
+<div><div class="header">
+  <div class="headertitle"><div class="title">Nimble — Device Framework for Embedded Systems </div></div>
 </div><!--header-->
 <div class="contents">
+<div class="textblock"><div class="image">
+<object type="image/svg+xml" data="doxygen.svg" width="100px" style="pointer-events: none;"></object>
+</div>
+<h1><a class="anchor" id="intro_sec"></a>
+Introduction</h1>
+<p><b>Nimble</b> is a small, deterministic <b>C++17 framework</b> for building predictable, safety-oriented embedded applications. It provides a <b>time-triggered cyclic execution model</b> that runs simple device components with explicit budgets and well-defined lifecycle hooks.</p>
+<p>Perfect for <b>bare-metal systems, microcontrollers, and freestanding environments</b> where dynamic allocation, exceptions, and RTTI are undesirable or unavailable.</p>
+<p>Nimble is designed with <b>safety, predictability, and simplicity</b> as core principles, making it ideal for applications that require:</p><ul>
+<li>Deterministic timing behavior</li>
+<li>Low memory footprint</li>
+<li>Clear, auditable code paths</li>
+<li>Easy schedulability analysis</li>
+</ul>
+<h1><a class="anchor" id="goals_sec"></a>
+Design Goals</h1>
+<p>Nimble is built with the following core goals in mind:</p>
+<ul>
+<li><b>Deterministic</b> — Timing behavior is predictable and analyzable</li>
+<li><b>Safe</b> — No dynamic memory, no exceptions, no RTTI; all state is explicit and auditable</li>
+<li><b>Simple</b> — Minimal API surface; easy to understand and verify</li>
+<li><b>Minimal</b> — Small footprint suitable for resource-constrained targets</li>
+<li><b>Composable</b> — Build complex systems from simple, well-defined components</li>
+</ul>
+<p>The framework focuses on <b>explicit over implicit</b> — timing constraints, memory budgets, and scheduling decisions are all visible in the code, enabling rigorous analysis and review.</p>
+<h1><a class="anchor" id="features_sec"></a>
+Key Features</h1>
+<p><b>Scheduling &amp; Execution</b></p><ul>
+<li>Deterministic cyclic executive with major/minor frames</li>
+<li>Static, compile-time schedule descriptions</li>
+<li>Safe schedule switching at frame boundaries</li>
+<li>Multiple, interchangeable scheduling strategies</li>
+</ul>
+<p><b>Device Model</b></p><ul>
+<li>Simple POD <code>Device</code> descriptors with lifecycle hooks (init/start/stop/update/on_fault)</li>
+<li>Per-device declared WCET (Worst-Case Execution Time) annotations</li>
+<li>Per-device budget enforcement and overrun tracking</li>
+<li>Pluggable overrun and catch-up policies (drop, skip, signal, reset)</li>
+</ul>
+<p><b>Runtime Properties</b> #include "core/device.h" #include "schedule/schedule_defs.h" #include "executive/cyclic_executor.h"</p><ul>
+<li>Minimal dependencies; intended for resource-constrained targets</li>
+<li>Explicit state management: all mutable state lives in <code><a class="el" href="structnimble_1_1ExecContext.html" title="Runtime state for a cyclic executive instance.">nimble::ExecContext</a></code></li>
+</ul>
+<p><b>Observability</b></p><ul>
+<li><a class="el" href="structHealth.html">Health</a> monitoring and per-device statistics</li>
+<li>Overrun/catch-up event tracking</li>
+<li>Timing and budget instrumentation</li>
+<li>Support for custom logging and telemetry</li>
+</ul>
+<h1><a class="anchor" id="architecture_sec"></a>
+Architecture Overview</h1>
+<p>Nimble follows a <b>layered architecture</b> with clear separation of concerns:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Layer   </th><th class="markdownTableHeadNone">Location   </th><th class="markdownTableHeadNone">Purpose    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><b>Core</b>   </td><td class="markdownTableBodyNone"><code>include/core/</code>   </td><td class="markdownTableBodyNone">Fundamental abstractions: <code>Device</code>, <code><a class="el" href="structHealth.html">Health</a></code>, <code>Time</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><b>Schedule</b>   </td><td class="markdownTableBodyNone"><code>include/schedule/</code>   </td><td class="markdownTableBodyNone">Schedule structure definitions    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><b>Policy</b>   </td><td class="markdownTableBodyNone"><code>include/policy/</code>   </td><td class="markdownTableBodyNone">Overrun and catch-up strategy enums    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><b>Executive</b>   </td><td class="markdownTableBodyNone"><code>include/executive/</code> + <code>src/executive/</code>   </td><td class="markdownTableBodyNone">Runtime driver and cyclic executor   </td></tr>
+</table>
+<h2><a class="anchor" id="arch_device"></a>
+Device Model</h2>
+<p>Each <b>device</b> is a POD structure describing the device's lifecycle callbacks and timing metadata:</p>
+<ul>
+<li>**<code>init(Device*)</code>** — Optional initialization executed once at runtime startup</li>
+<li>**<code>start(Device*)</code>** — Called when the device enters service</li>
+<li>**<code>update(Device*)</code>** — Periodic execution invoked by the scheduler each minor frame</li>
+<li>**<code>stop(Device*)</code>** — Called when the device is being stopped</li>
+<li>**<code>on_fault(Device*)</code>** — Fault handler invoked when the device signals an unrecoverable error</li>
+<li>**<code>period_ms</code>** — Declared period (in milliseconds) for scheduling hints</li>
+<li>**<code>wcet_us</code>** — Worst-case execution time budget (in microseconds)</li>
+</ul>
+<p>Devices are stateless from Nimble's perspective; application state is stored externally (passed via device pointers or global/stack storage).</p>
+<h2><a class="anchor" id="arch_schedule"></a>
+Schedule Model</h2>
+<p><b>Schedules</b> are static data structures that define the temporal organization of device execution.</p>
+<p>A schedule consists of:</p><ul>
+<li><b>Major Frame</b> — The complete cycle time (e.g., 100 ms)</li>
+<li><b>Minor Frames</b> — Sub-intervals within the major frame, each specifying:<ul>
+<li>Device indices to execute</li>
+<li>Duration (in microseconds)</li>
+</ul>
+</li>
+</ul>
+<p>The executor cycles through all minor frames in sequence, producing a predictable, repeating behavior. This model is similar to <b>cyclic executives</b> used in aerospace and real-time systems.</p>
+<p>Multiple schedules can be defined and switched safely at major-frame boundaries, allowing for mode changes or reconfiguration.</p>
+<h2><a class="anchor" id="arch_executor"></a>
+Executor Behavior</h2>
+<p>The <b>cyclic executor</b> is the heart of Nimble. It drives execution from a caller-provided monotonic time source. Key responsibilities:</p>
+<ul>
+<li><b>State Management</b> — Maintain <code><a class="el" href="structnimble_1_1ExecContext.html" title="Runtime state for a cyclic executive instance.">nimble::ExecContext</a></code> with all runtime state, device pointers, and schedule tables</li>
+<li><b>Frame Progression</b> — Determine when each minor frame should start based on elapsed time</li>
+<li><b>Device Invocation</b> — Invoke the <code>update</code> callback for each device listed in the current minor frame</li>
+<li><b>Budget Enforcement</b> — Track execution times against declared WCET and enforce per-frame budgets</li>
+</ul>
+<p>For an end-to-end walkthrough, see the README in the repository root.</p><ul>
+<li><b>Lifecycle Management</b> — Call init/start/stop/on_fault callbacks as appropriate</li>
+</ul>
+<h1><a class="anchor" id="api_sec"></a>
+Public API Summary</h1>
+<p><b>Initialization</b></p><ol type="1">
+<li>Include headers from <code>include/</code> in your source files (e.g., add <code>-Iinclude</code>)</li>
+<li><p class="startli">Compile and link object files from <code>src/</code> <b>Execution</b></p><ul>
+<li><code>nimble::cyclic_poll(ExecContext*)</code> — Drive one iteration of the executor (time-driven)</li>
+<li><code>nimble::cyclic_tick_us(ExecContext*, uint64_t)</code> — Advance executor with explicit time value</li>
+</ul>
+<p class="startli"><b>Core Types</b></p><ul>
+<li><code><a class="el" href="structnimble_1_1Device.html" title="Compact device descriptor consumed by framework executors.">nimble::Device</a></code> — Device descriptor with callbacks and timing metadata</li>
+<li><code><a class="el" href="structnimble_1_1ExecContext.html" title="Runtime state for a cyclic executive instance.">nimble::ExecContext</a></code> — Runtime context holding all mutable state</li>
+<li><code><a class="el" href="structnimble_1_1Health.html" title="Runtime health and execution statistics for a device.">nimble::Health</a></code> — Per-device health and statistics tracking</li>
+<li><code><a class="el" href="structnimble_1_1MinorFrameDef.html" title="Definition of a minor frame within a cyclic schedule.">nimble::MinorFrameDef</a></code> — Definition of a minor frame</li>
+<li><code><a class="el" href="structnimble_1_1ScheduleDef.html" title="Definition of a complete major-frame schedule.">nimble::ScheduleDef</a></code> — Definition of a complete schedule</li>
+<li><code><a class="el" href="namespacenimble.html#a565b2da5b6f6a0e37400390a9576fd22" title="Runtime state of a device tracked by the executor.">nimble::DeviceState</a></code> — Per-device runtime state (overrun counters, etc.)</li>
+</ul>
+<p class="startli">For detailed API documentation, see the <b>Classes</b> and <b>Namespaces</b> sections in this documentation.</p>
+</li>
+</ol>
+<h1><a class="anchor" id="usage_sec"></a>
+Quick Start Example</h1>
+<p>Here's a minimal example of setting up and running Nimble:</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &quot;<a class="code" href="core_2device_8h.html">core/device.h</a>&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="schedule__defs_8h.html">schedule/schedule_defs.h</a>&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;<a class="code" href="cyclic__executor_8h.html">executive/cyclic_executor.h</a>&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;cstdint&gt;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Device callbacks</span></div>
+<div class="line"><span class="keywordtype">void</span> sensor_init(<a class="code hl_struct" href="structnimble_1_1Device.html">nimble::Device</a>* d) {</div>
+<div class="line">  <span class="comment">// Initialize sensor hardware</span></div>
+<div class="line">}</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">void</span> sensor_update(<a class="code hl_struct" href="structnimble_1_1Device.html">nimble::Device</a>* d) {</div>
+<div class="line">  <span class="comment">// Read sensor and process data</span></div>
+<div class="line">}</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">void</span> actuator_update(<a class="code hl_struct" href="structnimble_1_1Device.html">nimble::Device</a>* d) {</div>
+<div class="line">  <span class="comment">// Send command to actuator</span></div>
+<div class="line">}</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Define devices</span></div>
+<div class="line"><span class="keyword">static</span> <a class="code hl_struct" href="structnimble_1_1Device.html">nimble::Device</a> devices[] = {</div>
+<div class="line">  { sensor_init,       <span class="keyword">nullptr</span>,         sensor_update,    <span class="keyword">nullptr</span>, 1000,  500 },</div>
+<div class="line">  { <span class="keyword">nullptr</span>,           <span class="keyword">nullptr</span>,         actuator_update,  <span class="keyword">nullptr</span>, 1000,  300 }</div>
+<div class="line">};</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Define schedule: minor frame with both devices, 100ms duration</span></div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> uint16_t minor0_devs[] = { 0, 1 };</div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structnimble_1_1MinorFrameDef.html">nimble::MinorFrameDef</a> minors[] = {</div>
+<div class="line">  { minor0_devs, 2, 100000 }  <span class="comment">// 100ms frame with 2 devices</span></div>
+<div class="line">};</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Define schedule set</span></div>
+<div class="line"><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structnimble_1_1ScheduleDef.html">nimble::ScheduleDef</a> schedules[] = {</div>
+<div class="line">  { minors, 1 }  <span class="comment">// 1 schedule, 1 minor frame each</span></div>
+<div class="line">};</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Allocate runtime state</span></div>
+<div class="line"><span class="keyword">static</span> <a class="code hl_struct" href="structnimble_1_1Health.html">nimble::Health</a> health[2];</div>
+<div class="line"><span class="keyword">static</span> <a class="code hl_enumeration" href="namespacenimble.html#a565b2da5b6f6a0e37400390a9576fd22">nimble::DeviceState</a> states[2];</div>
+<div class="line"><span class="keyword">static</span> <a class="code hl_struct" href="structnimble_1_1ExecContext.html">nimble::ExecContext</a> ctx;</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// Get current time (e.g., from hardware timer)</span></div>
+<div class="line">uint64_t get_time_us() {</div>
+<div class="line">  <span class="keyword">static</span> uint64_t t = 0;</div>
+<div class="line">  <span class="keywordflow">return</span> t++;  <span class="comment">// Mock time source</span></div>
+<div class="line">}</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">int</span> main() {</div>
+<div class="line">  <span class="comment">// Initialize framework</span></div>
+<div class="line">  <a class="code hl_function" href="namespacenimble.html#a0cce9f474aed0679d6b1862589c4bdd5">nimble::cyclic_init</a>(&amp;ctx,</div>
+<div class="line">    devices, 2,              <span class="comment">// device array</span></div>
+<div class="line">    schedules, 1, 0,         <span class="comment">// schedules</span></div>
+<div class="line">    health, states,          <span class="comment">// state buffers</span></div>
+<div class="line">    get_time_us,             <span class="comment">// time source function</span></div>
+<div class="line">    <a class="code hl_enumvalue" href="namespacenimble.html#afb068c2dadb97f224390033902e7f4dea8ac5ec00bdc6cd1c8135da4db5f5c2f3">nimble::OverrunPolicy::DropTask</a>);</div>
+<div class="line"> </div>
+<div class="line">  <span class="comment">// Main scheduler loop</span></div>
+<div class="line">  <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
+<div class="line">    <a class="code hl_function" href="namespacenimble.html#a346140fead7640aa55401b609849848e">nimble::cyclic_poll</a>(&amp;ctx);</div>
+<div class="line">    <span class="comment">// Context executes devices according to schedule</span></div>
+<div class="line">  }</div>
+<div class="line"> </div>
+<div class="line">  <span class="keywordflow">return</span> 0;</div>
+<div class="line">}</div>
+<div class="ttc" id="acore_2device_8h_html"><div class="ttname"><a href="core_2device_8h.html">device.h</a></div><div class="ttdoc">Device abstraction and lifecycle state types.</div></div>
+<div class="ttc" id="acyclic__executor_8h_html"><div class="ttname"><a href="cyclic__executor_8h.html">cyclic_executor.h</a></div><div class="ttdoc">Public API for the cyclic executive scheduler.</div></div>
+<div class="ttc" id="anamespacenimble_html_a0cce9f474aed0679d6b1862589c4bdd5"><div class="ttname"><a href="namespacenimble.html#a0cce9f474aed0679d6b1862589c4bdd5">nimble::cyclic_init</a></div><div class="ttdeci">bool cyclic_init(ExecContext *ctx, const Device *devices, size_t device_count, const ScheduleDef *schedules, size_t schedule_count, size_t initial_schedule, Health *health_buffer, DeviceState *state_buffer, TimeSourceFn time_source, OverrunPolicy overrun_policy) noexcept</div><div class="ttdoc">Initialize a cyclic executive context.</div><div class="ttdef"><b>Definition</b> <a href="cyclic__executor_8cpp_source.html#l00023">cyclic_executor.cpp:23</a></div></div>
+<div class="ttc" id="anamespacenimble_html_a346140fead7640aa55401b609849848e"><div class="ttname"><a href="namespacenimble.html#a346140fead7640aa55401b609849848e">nimble::cyclic_poll</a></div><div class="ttdeci">void cyclic_poll(ExecContext *ctx) noexcept</div><div class="ttdoc">Drive the executor using the context's time source.</div><div class="ttdef"><b>Definition</b> <a href="cyclic__executor_8cpp_source.html#l00146">cyclic_executor.cpp:146</a></div></div>
+<div class="ttc" id="anamespacenimble_html_a565b2da5b6f6a0e37400390a9576fd22"><div class="ttname"><a href="namespacenimble.html#a565b2da5b6f6a0e37400390a9576fd22">nimble::DeviceState</a></div><div class="ttdeci">DeviceState</div><div class="ttdoc">Runtime state of a device tracked by the executor.</div><div class="ttdef"><b>Definition</b> <a href="core_2device_8h_source.html#l00042">device.h:42</a></div></div>
+<div class="ttc" id="anamespacenimble_html_afb068c2dadb97f224390033902e7f4dea8ac5ec00bdc6cd1c8135da4db5f5c2f3"><div class="ttname"><a href="namespacenimble.html#afb068c2dadb97f224390033902e7f4dea8ac5ec00bdc6cd1c8135da4db5f5c2f3">nimble::OverrunPolicy::DropTask</a></div><div class="ttdeci">@ DropTask</div></div>
+<div class="ttc" id="aschedule__defs_8h_html"><div class="ttname"><a href="schedule__defs_8h.html">schedule_defs.h</a></div><div class="ttdoc">Static schedule table definitions for cyclic executive.</div></div>
+<div class="ttc" id="astructnimble_1_1Device_html"><div class="ttname"><a href="structnimble_1_1Device.html">nimble::Device</a></div><div class="ttdoc">Compact device descriptor consumed by framework executors.</div><div class="ttdef"><b>Definition</b> <a href="core_2device_8h_source.html#l00059">device.h:59</a></div></div>
+<div class="ttc" id="astructnimble_1_1ExecContext_html"><div class="ttname"><a href="structnimble_1_1ExecContext.html">nimble::ExecContext</a></div><div class="ttdoc">Runtime state for a cyclic executive instance.</div><div class="ttdef"><b>Definition</b> <a href="executive__context_8h_source.html#l00034">executive_context.h:34</a></div></div>
+<div class="ttc" id="astructnimble_1_1Health_html"><div class="ttname"><a href="structnimble_1_1Health.html">nimble::Health</a></div><div class="ttdoc">Runtime health and execution statistics for a device.</div><div class="ttdef"><b>Definition</b> <a href="health_8h_source.html#l00024">health.h:24</a></div></div>
+<div class="ttc" id="astructnimble_1_1MinorFrameDef_html"><div class="ttname"><a href="structnimble_1_1MinorFrameDef.html">nimble::MinorFrameDef</a></div><div class="ttdoc">Definition of a minor frame within a cyclic schedule.</div><div class="ttdef"><b>Definition</b> <a href="schedule__defs_8h_source.html#l00030">schedule_defs.h:30</a></div></div>
+<div class="ttc" id="astructnimble_1_1ScheduleDef_html"><div class="ttname"><a href="structnimble_1_1ScheduleDef.html">nimble::ScheduleDef</a></div><div class="ttdoc">Definition of a complete major-frame schedule.</div><div class="ttdef"><b>Definition</b> <a href="schedule__defs_8h_source.html#l00044">schedule_defs.h:44</a></div></div>
+</div><!-- fragment --><p>For an end-to-end walkthrough, see the README in the repository root.</p>
+<h1><a class="anchor" id="integration_sec"></a>
+Integration &amp; Build</h1>
+<p><b>Including Nimble in Your Project</b></p>
+<ol type="1">
+<li>Include headers from <code>include/</code> in your source files (e.g., add <code>-Iinclude</code>)</li>
+<li>Compile and link object files from <code>src/</code></li>
+<li>Ensure your compiler supports C++17 and enable the flags below</li>
+</ol>
+<p><b>Recommended Compiler Flags</b></p>
+<div class="fragment"><div class="line">-std=c++17 -O2 -fno-exceptions -fno-rtti</div>
+</div><!-- fragment --><ul>
+<li><code>-std=c++17</code> — Required for modern C++ features (constexpr, structured bindings, etc.)</li>
+<li><code>-O2</code> — Optimize for size and speed</li>
+<li><code>-fno-exceptions</code> — Disable exceptions (Nimble doesn't use them)</li>
+<li><code>-fno-rtti</code> — Disable RTTI (Nimble doesn't use it)</li>
+</ul>
+<p><b>Header-Only Usage</b></p>
+<p>The public API is largely header-based for inline optimization. Only the cyclic executor implementation (in <code>src/executive/</code>) requires compilation.</p>
+<h1><a class="anchor" id="constraints_sec"></a>
+Constraints &amp; Design Notes</h1>
+<ul>
+<li>No dynamic allocations: all runtime buffers are provided by the caller</li>
+<li>Minimal STL usage to reduce footprint and improve analyzability</li>
+<li>Single-threaded by design; integrating with an RTOS requires adapting the time source and calling model</li>
+</ul>
+<h1><a class="anchor" id="safety_sec"></a>
+Safety &amp; Verification</h1>
+<ul>
+<li>Explicit WCET annotations enable simple schedulability checks</li>
+<li><a class="el" href="structHealth.html">Health</a> counters and per-device overrun tracking assist debugging</li>
+<li>The small code surface and POD data structures make formal review simpler</li>
+</ul>
+<h1><a class="anchor" id="contributing_sec"></a>
+Contributing &amp; Support</h1>
+<p><b>Bug Reports &amp; Feature Requests</b></p>
+<p>If you encounter issues or have suggestions:</p><ol type="1">
+<li>Check the <a href="https://github.com/yusufkerman/nimble/issues">GitHub Issues</a> page</li>
+<li>Open a new issue with:<ul>
+<li>A clear description of the problem or feature</li>
+<li>Steps to reproduce (for bugs)</li>
+<li>Your environment (compiler, platform, etc.)</li>
+</ul>
+</li>
+</ol>
+<p><b>Contributing Code</b></p>
+<p>Contributions are welcome! Please:</p><ol type="1">
+<li>Fork the repository</li>
+<li>Create a feature branch (<code>git checkout -b feature/my-feature</code>)</li>
+<li>Commit your changes following the project style</li>
+<li>Push to your branch</li>
+<li>Open a pull request with a clear description</li>
+</ol>
+<p>Ensure your contributions:</p><ul>
+<li>Maintain the deterministic and freestanding principles</li>
+<li>Include appropriate comments and documentation</li>
+<li>Don't introduce dynamic allocation or exceptions</li>
+</ul>
+<h1><a class="anchor" id="resources_sec"></a>
+Resources &amp; References</h1>
+<ul>
+<li><b>Repository:</b> <a href="https://github.com/yusufkerman/nimble">yusufkerman/nimble</a></li>
+<li><b>Documentation:</b> <a href="https://yusufkerman.github.io/nimble/">https://yusufkerman.github.io/nimble/</a></li>
+<li><b>License:</b> <a href="https://github.com/yusufkerman/nimble/blob/master/LICENSE">MIT</a></li>
+</ul>
+<h1><a class="anchor" id="references_sec"></a>
+Academic &amp; Technical References</h1>
+<p>Nimble is inspired by real-time scheduling concepts:</p><ul>
+<li><b>Cyclic Executive Model</b> — Deterministic scheduling pattern used in aerospace</li>
+<li><b>Rate Monotonic Scheduling (RMS)</b> — Foundation of real-time systems theory</li>
+<li><b>Worst-Case Execution Time (WCET)</b> — Critical for timing analysis</li>
+</ul>
+<p>For deeper understanding:</p><ul>
+<li>Jane W. S. Liu: <em>Real-Time Systems</em></li>
+<li>James A. Stankovic: <em>Real-Time Computing</em></li>
+</ul>
+<h1><a class="anchor" id="changelog_sec"></a>
+Changelog</h1>
+<p>See the <a href="https://github.com/yusufkerman/nimble/releases">GitHub Releases</a> page for version history and release notes.</p>
+<hr  />
+<p><b>Last Updated:</b> 4 January 2026 <br  />
+ <b>Version:</b> 1.0 <br  />
+ <b>Author:</b> <a href="https://github.com/yusufkerman">Yusuf Kerman</a> </p>
+</div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

@@ -25,6 +25,7 @@
 var NAVTREE =
 [
   [ "Nimble - DeviceFramework", "index.html", [
+    [ "Nimble — Device Framework for Embedded Systems", "index.html", "index" ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
       [ "Namespace Members", "namespacemembers.html", [
@@ -58,7 +59,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"annotated.html"
+"annotated.html",
+"structnimble_1_1MinorFrameDef.html#a16521ffea7d20761c9eb235c4b27375e"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

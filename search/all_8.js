@@ -1,11 +1,8 @@
 var searchData=
 [
-  ['mainpage_2edox_0',['mainpage.dox',['../mainpage_8dox.html',1,'']]],
-  ['manual_1',['MANUAL',['../cyclic__executive_8h.html#a336618b66999daac3ed7e7f422381bf5aa60a6a471c0681e5a49c4f5d00f6bc5a',1,'cyclic_executive.h']]],
-  ['max_5fexec_5ftime_5fus_2',['max_exec_time_us',['../structnimble_1_1Health.html#a8c97e296844157f8263ebb9c0dd34ffa',1,'nimble::Health::max_exec_time_us'],['../structHealth.html#abee72071376342b52905f94da60ac280',1,'Health::max_exec_time_us']]],
-  ['minor_5fcount_3',['minor_count',['../structnimble_1_1ScheduleDef.html#a5d2a43f48de5ae0ed6caf089c98a838e',1,'nimble::ScheduleDef']]],
-  ['minor_5fstart_5ftime_5fus_4',['minor_start_time_us',['../structnimble_1_1ExecContext.html#a67c9a27a9958c86368707b1b5e583be2',1,'nimble::ExecContext']]],
-  ['minor_5fused_5fus_5',['minor_used_us',['../structnimble_1_1ExecContext.html#ac5f0c6babbaa701f25488efddb66fefb',1,'nimble::ExecContext']]],
-  ['minorframedef_6',['minorframedef',['../structMinorFrameDef.html',1,'MinorFrameDef'],['../structnimble_1_1CyclicExecutive_1_1MinorFrameDef.html',1,'nimble::CyclicExecutive::MinorFrameDef'],['../structnimble_1_1MinorFrameDef.html',1,'nimble::MinorFrameDef']]],
-  ['minors_7',['minors',['../structnimble_1_1ScheduleDef.html#a672d22f00d48d8fb57a5919ff70c25ea',1,'nimble::ScheduleDef']]]
+  ['init_0',['init',['../structnimble_1_1Device.html#a43505a22ad748c2ca8cff16faecbaee0',1,'nimble::Device::init'],['../classnimble_1_1CyclicExecutive.html#ae62ec4b203108452566582f8682d8f51',1,'nimble::CyclicExecutive::init(Device *devices, std::size_t count, uint32_t major_frame_ms, uint64_t *next_release_buffer, CatchUpPolicy policy=CatchUpPolicy::Limited, uint32_t max_catchups=1)'],['../classnimble_1_1CyclicExecutive.html#ae62ec4b203108452566582f8682d8f51',1,'nimble::CyclicExecutive::init(Device *devices, std::size_t count, uint32_t major_frame_ms, uint64_t *next_release_buffer, CatchUpPolicy policy=CatchUpPolicy::Limited, uint32_t max_catchups=1)']]],
+  ['init_5fcyclic_1',['init_cyclic',['../classnimble_1_1CyclicExecutive.html#a3f0ecf06d303b8bf49540f0c7e4cdad2',1,'nimble::CyclicExecutive']]],
+  ['initialized_2',['initialized',['../namespacenimble.html#a565b2da5b6f6a0e37400390a9576fd22a59d87a4758a9d35fbaf6b204341bb399',1,'nimble::Initialized'],['../cyclic__executive_8h.html#ab17193046091e749910e3011b1b8b7baa59d87a4758a9d35fbaf6b204341bb399',1,'Initialized:&#160;cyclic_executive.h']]],
+  ['integration_20build_3',['Integration &amp; Build',['../index.html#integration_sec',1,'']]],
+  ['introduction_4',['Introduction',['../index.html#intro_sec',1,'']]]
 ];
