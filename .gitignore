@@ -1,0 +1,19 @@
+# Ignore build artifacts and local files
+build/
+bin/
+out/
+
+# Ignore test binaries and example runtime outputs
+tests/run_tests
+examples/*.o
+
+# Ignore editor/IDE files
+.vscode/
+*.swp
+
+# Ignore OS files
+.DS_Store
+
+# Keep sources tracked
+!framework/**
+!examples/**
