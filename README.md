@@ -1,32 +1,38 @@
 # Nimble
 
-Nimble, gömülü sistemler için tasarlanmış küçük, deterministik bir C++17 çerçevesidir. Zaman tetiklemeli, döngüsel (cyclic) yürütme modeliyle cihaz bileşenlerini açık bütçeler ve yaşam döngüsü kancalarıyla düzenler.
+Nimble is a small, deterministic C++17 framework for building predictable,
+safety-oriented embedded applications. It provides a time-triggered cyclic
+execution model to run simple device components with explicit budgets and
+well-defined lifecycle hooks.
 
-## Öne çıkan özellikler
-- Deterministik döngüsel yürütücü (major/minor frame)
-- Hafif, POD tabanlı `Device` tanımları (init/start/stop/update/on_fault)
-- Derleme-zamanı programlanabilen çizelgeler (`nimble::MinorFrameDef`, `nimble::ScheduleDef`)
-- Cihaza özgü WCET bildirimi ve bütçe uygulaması
-- Dinamik bellek, istisnalar ve RTTI kullanılmaz — freestanding uyumlu
+## Key Features
+- Deterministic cyclic executive (major/minor frames)
+- Lightweight POD `Device` descriptors (init/start/stop/update/on_fault)
+- Compile-time schedule descriptions (`nimble::MinorFrameDef`, `nimble::ScheduleDef`)
+- Per-device WCET annotations with budget enforcement
+- No dynamic memory, no exceptions, no RTTI — freestanding-friendly
 
-## Dokümantasyon
-Projenin otomatik üretilmiş dokümantasyonu GitHub Pages üzerinde yayımlandı:
+## Documentation
+The generated API documentation is published via GitHub Pages at:
 
 https://yusufkerman.github.io/nimble/
 
-Bu sayfada API referansı, kullanım örnekleri ve mimari açıklamalar bulunur.
+If you see a 404, GitHub Pages may still be propagating the site — wait a few
+minutes and try again. If the problem persists, check the repository Pages
+settings and ensure the `gh-pages` branch is selected as the site source.
 
-## Hızlı Başlangıç
-1. Başlıkları proje kökünden dahil edin: `framework/include/`
-2. Dökümantasyondaki örneklerden yola çıkarak kendi `Device` dizilerinizi ve `Schedule` tanımlarınızı oluşturun.
-3. `nimble::cyclic_init(...)` ile `nimble::ExecContext` başlatın ve `nimble::cyclic_poll(&ctx)` çağırarak yürütmeyi sürdürün.
+## Quick Start
+1. Include headers from the `framework/include/` directory.
+2. Define your `Device` array and `Schedule` structures following the examples.
+3. Initialize runtime with `nimble::cyclic_init(...)` and drive execution with
+	`nimble::cyclic_poll(&ctx)` in your main loop.
 
-Detaylı örnekler `examples/` içinde mevcuttur.
+See the `examples/` directory for concrete usage examples.
 
 ## GitHub Pages
-Dokümantasyon `gh-pages` dalından servis ediliyor. Sayfanın adresi yukarıdaki linktedir.
+The documentation is served from the `gh-pages` branch. The site URL is above.
 
-## Lisans
-Depoda lisans bilgisi mevcut — lütfen repodaki lisans dosyasını inceleyin.
+## License
+See the repository for license details.
 
-Katkılar ve sorun bildirimleri için GitHub Issues kullanabilirsiniz.
+Contributions and issues are welcome via GitHub.
