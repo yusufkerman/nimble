@@ -1,0 +1,296 @@
+/**
+ * @mainpage Nimble — Device Framework for Embedded Systems
+ *
+ * @image html doxygen.svg width=100px
+ *
+ * @section intro_sec Introduction
+ * 
+ * **Nimble** is a small, deterministic **C++17 framework** for building predictable,
+ * safety-oriented embedded applications. It provides a **time-triggered cyclic execution model**
+ * that runs simple device components with explicit budgets and well-defined lifecycle hooks.
+ * 
+ * Perfect for **bare-metal systems, microcontrollers, and freestanding environments** where
+ * dynamic allocation, exceptions, and RTTI are undesirable or unavailable.
+ * 
+ * Nimble is designed with **safety, predictability, and simplicity** as core principles,
+ * making it ideal for applications that require:
+ * - Deterministic timing behavior
+ * - Low memory footprint
+ * - Clear, auditable code paths
+ * - Easy schedulability analysis
+ *
+ * @section goals_sec Design Goals
+ * 
+ * Nimble is built with the following core goals in mind:
+ * 
+ * - **Deterministic** — Timing behavior is predictable and analyzable
+ * - **Safe** — No dynamic memory, no exceptions, no RTTI; all state is explicit and auditable
+ * - **Simple** — Minimal API surface; easy to understand and verify
+ * - **Minimal** — Small footprint suitable for resource-constrained targets
+ * - **Composable** — Build complex systems from simple, well-defined components
+ * 
+ * The framework focuses on **explicit over implicit** — timing constraints, memory budgets,
+ * and scheduling decisions are all visible in the code, enabling rigorous analysis and review.
+ *
+ * @section features_sec Key Features
+ * 
+ * **Scheduling & Execution**
+ * - Deterministic cyclic executive with major/minor frames
+ * - Static, compile-time schedule descriptions
+ * - Safe schedule switching at frame boundaries
+ * - Multiple, interchangeable scheduling strategies
+ * 
+ * **Device Model**
+ * - Simple POD `Device` descriptors with lifecycle hooks (init/start/stop/update/on_fault)
+ * - Per-device declared WCET (Worst-Case Execution Time) annotations
+ * - Per-device budget enforcement and overrun tracking
+ * - Pluggable overrun and catch-up policies (drop, skip, signal, reset)
+ * 
+ * **Runtime Properties**
+ * - No dynamic memory allocation — all buffers pre-allocated by caller
+ * - No exceptions or RTTI — suitable for freestanding environments
+ * - Single-threaded by design (easy to adapt to RTOS)
+ * - Minimal dependencies; intended for resource-constrained targets
+ * - Explicit state management: all mutable state lives in `nimble::ExecContext`
+ * 
+ * **Observability**
+ * - Health monitoring and per-device statistics
+ * - Overrun/catch-up event tracking
+ * - Timing and budget instrumentation
+ * - Support for custom logging and telemetry
+ *
+ * @section architecture_sec Architecture Overview
+ * 
+ * Nimble follows a **layered architecture** with clear separation of concerns:
+ * 
+ * | Layer | Location | Purpose |
+ * |-------|----------|---------|
+ * | **Core** | `framework/include/core/` | Fundamental abstractions: `Device`, `Health`, `Time` |
+ * | **Schedule** | `framework/include/schedule/` | Schedule structure definitions |
+ * | **Policy** | `framework/include/policy/` | Overrun and catch-up strategy enums |
+ * | **Executive** | `framework/include/executive/` + `framework/src/executive/` | Runtime driver and cyclic executor |
+ * 
+ * @subsection arch_device Device Model
+ * 
+ * Each **device** is a POD structure describing the device's lifecycle callbacks and timing metadata:
+ * 
+ * - **`init(Device*)`** — Optional initialization executed once at runtime startup
+ * - **`start(Device*)`** — Called when the device enters service
+ * - **`update(Device*)`** — Periodic execution invoked by the scheduler each minor frame
+ * - **`stop(Device*)`** — Called when the device is being stopped
+ * - **`on_fault(Device*)`** — Fault handler invoked when the device signals an unrecoverable error
+ * - **`period_ms`** — Declared period (in milliseconds) for scheduling hints
+ * - **`wcet_us`** — Worst-case execution time budget (in microseconds)
+ * 
+ * Devices are stateless from Nimble's perspective; application state is stored externally
+ * (passed via device pointers or global/stack storage).
+ *
+ * @subsection arch_schedule Schedule Model
+ * 
+ * **Schedules** are static data structures that define the temporal organization of device execution.
+ * 
+ * A schedule consists of:
+ * - **Major Frame** — The complete cycle time (e.g., 100 ms)
+ * - **Minor Frames** — Sub-intervals within the major frame, each specifying:
+ *   - Device indices to execute
+ *   - Duration (in microseconds)
+ * 
+ * The executor cycles through all minor frames in sequence, producing a predictable,
+ * repeating behavior. This model is similar to **cyclic executives** used in aerospace
+ * and real-time systems.
+ * 
+ * Multiple schedules can be defined and switched safely at major-frame boundaries,
+ * allowing for mode changes or reconfiguration.
+ *
+ * @subsection arch_executor Executor Behavior
+ * 
+ * The **cyclic executor** is the heart of Nimble. It drives execution from a caller-provided
+ * monotonic time source. Key responsibilities:
+ * 
+ * - **State Management** — Maintain `nimble::ExecContext` with all runtime state, device pointers, and schedule tables
+ * - **Frame Progression** — Determine when each minor frame should start based on elapsed time
+ * - **Device Invocation** — Invoke the `update` callback for each device listed in the current minor frame
+ * - **Budget Enforcement** — Track execution times against declared WCET and enforce per-frame budgets
+ * - **Health Tracking** — Update `nimble::Health` counters and record overruns/underruns
+ * - **Policy Application** — Invoke pluggable policies on overrun/catch-up decisions
+ * - **Lifecycle Management** — Call init/start/stop/on_fault callbacks as appropriate
+ *
+ * @section api_sec Public API Summary
+ * 
+ * **Initialization**
+ * - `nimble::cyclic_init(...)` — Initialize the runtime with devices, schedules, and policies
+ * 
+ * **Execution**
+ * - `nimble::cyclic_poll(ExecContext*)` — Drive one iteration of the executor (time-driven)
+ * - `nimble::cyclic_tick_us(ExecContext*, uint64_t)` — Advance executor with explicit time value
+ * 
+ * **Core Types**
+ * - `nimble::Device` — Device descriptor with callbacks and timing metadata
+ * - `nimble::ExecContext` — Runtime context holding all mutable state
+ * - `nimble::Health` — Per-device health and statistics tracking
+ * - `nimble::MinorFrameDef` — Definition of a minor frame
+ * - `nimble::ScheduleDef` — Definition of a complete schedule
+ * - `nimble::DeviceState` — Per-device runtime state (overrun counters, etc.)
+ * 
+ * For detailed API documentation, see the **Classes** and **Namespaces** sections in this documentation.
+ *
+ * @section usage_sec Quick Start Example
+ * 
+ * Here's a minimal example of setting up and running Nimble:
+ * 
+ * @code{.cpp}
+ * #include "framework/include/core/device.h"
+ * #include "framework/include/schedule/schedule_defs.h"
+ * #include "framework/include/executive/cyclic_executor.h"
+ * #include <cstdint>
+ * 
+ * // Device callbacks
+ * void sensor_init(nimble::Device* d) {
+ *   // Initialize sensor hardware
+ * }
+ * 
+ * void sensor_update(nimble::Device* d) {
+ *   // Read sensor and process data
+ * }
+ * 
+ * void actuator_update(nimble::Device* d) {
+ *   // Send command to actuator
+ * }
+ * 
+ * // Define devices
+ * static nimble::Device devices[] = {
+ *   { sensor_init,       nullptr,         sensor_update,    nullptr, 1000,  500 },
+ *   { nullptr,           nullptr,         actuator_update,  nullptr, 1000,  300 }
+ * };
+ * 
+ * // Define schedule: minor frame with both devices, 100ms duration
+ * static const uint16_t minor0_devs[] = { 0, 1 };
+ * static const nimble::MinorFrameDef minors[] = {
+ *   { minor0_devs, 2, 100000 }  // 100ms frame with 2 devices
+ * };
+ * 
+ * // Define schedule set
+ * static const nimble::ScheduleDef schedules[] = {
+ *   { minors, 1 }  // 1 schedule, 1 minor frame each
+ * };
+ * 
+ * // Allocate runtime state
+ * static nimble::Health health[2];
+ * static nimble::DeviceState states[2];
+ * static nimble::ExecContext ctx;
+ * 
+ * // Get current time (e.g., from hardware timer)
+ * uint64_t get_time_us() {
+ *   static uint64_t t = 0;
+ *   return t++;  // Mock time source
+ * }
+ * 
+ * int main() {
+ *   // Initialize framework
+ *   nimble::cyclic_init(&ctx,
+ *     devices, 2,              // device array
+ *     schedules, 1, 0,         // schedules
+ *     health, states,          // state buffers
+ *     get_time_us,             // time source function
+ *     nimble::OverrunPolicy::DropTask);
+ * 
+ *   // Main scheduler loop
+ *   while (true) {
+ *     nimble::cyclic_poll(&ctx);
+ *     // Context executes devices according to schedule
+ *   }
+ * 
+ *   return 0;
+ * }
+ * @endcode
+ * 
+ * For more examples, see the **`examples/`** directory in the repository.
+ *
+ * @section integration_sec Integration & Build
+ * 
+ * **Including Nimble in Your Project**
+ * 
+ * 1. Include headers from `framework/include/` in your source files
+ * 2. Compile and link object files from `framework/src/`
+ * 3. Ensure your compiler supports C++17 and enable the flags below
+ * 
+ * **Recommended Compiler Flags**
+ * 
+ * @code
+ * -std=c++17 -O2 -fno-exceptions -fno-rtti
+ * @endcode
+ * 
+ * - `-std=c++17` — Required for modern C++ features (constexpr, structured bindings, etc.)
+ * - `-O2` — Optimize for size and speed
+ * - `-fno-exceptions` — Disable exceptions (Nimble doesn't use them)
+ * - `-fno-rtti` — Disable RTTI (Nimble doesn't use it)
+ * 
+ * **Header-Only Usage**
+ * 
+ * The public API is largely header-based for inline optimization. Only the cyclic executor
+ * implementation (in `framework/src/executive/`) requires compilation.
+ *
+ * @section constraints_sec Constraints & Design Notes
+ * - No dynamic allocations: all runtime buffers are provided by the caller
+ * - Minimal STL usage to reduce footprint and improve analyzability
+ * - Single-threaded by design; integrating with an RTOS requires adapting
+ *   the time source and calling model
+ *
+ * @section safety_sec Safety & Verification
+ * - Explicit WCET annotations enable simple schedulability checks
+ * - Health counters and per-device overrun tracking assist debugging
+ * - The small code surface and POD data structures make formal review simpler
+ *
+ * @section contributing_sec Contributing & Support
+ * 
+ * **Bug Reports & Feature Requests**
+ * 
+ * If you encounter issues or have suggestions:
+ * 1. Check the [GitHub Issues](https://github.com/yusufkerman/nimble/issues) page
+ * 2. Open a new issue with:
+ *    - A clear description of the problem or feature
+ *    - Steps to reproduce (for bugs)
+ *    - Your environment (compiler, platform, etc.)
+ * 
+ * **Contributing Code**
+ * 
+ * Contributions are welcome! Please:
+ * 1. Fork the repository
+ * 2. Create a feature branch (`git checkout -b feature/my-feature`)
+ * 3. Commit your changes following the project style
+ * 4. Push to your branch
+ * 5. Open a pull request with a clear description
+ * 
+ * Ensure your contributions:
+ * - Maintain the deterministic and freestanding principles
+ * - Include appropriate comments and documentation
+ * - Don't introduce dynamic allocation or exceptions
+ * 
+ * @section resources_sec Resources & References
+ * 
+ * - **Repository:** [yusufkerman/nimble](https://github.com/yusufkerman/nimble)
+ * - **Documentation:** https://yusufkerman.github.io/nimble/
+ * - **License:** [MIT](https://github.com/yusufkerman/nimble/blob/master/LICENSE)
+ * 
+ * @section references_sec Academic & Technical References
+ * 
+ * Nimble is inspired by real-time scheduling concepts:
+ * - **Cyclic Executive Model** — Deterministic scheduling pattern used in aerospace
+ * - **Rate Monotonic Scheduling (RMS)** — Foundation of real-time systems theory
+ * - **Worst-Case Execution Time (WCET)** — Critical for timing analysis
+ * 
+ * For deeper understanding:
+ * - Jane W. S. Liu: *Real-Time Systems*
+ * - James A. Stankovic: *Real-Time Computing*
+ * 
+ * @section changelog_sec Changelog
+ * 
+ * See the [GitHub Releases](https://github.com/yusufkerman/nimble/releases) page
+ * for version history and release notes.
+ * 
+ * ---
+ * 
+ * **Last Updated:** 4 January 2026  
+ * **Version:** 1.0  
+ * **Author:** [Yusuf Kerman](https://github.com/yusufkerman)
+ */
