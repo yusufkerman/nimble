@@ -109,7 +109,7 @@ Check out the **[`examples/`](examples/)** directory for practical usage pattern
 
 ## 📝 License
 
-See [LICENSE](LICENSE) for details.
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
 
 ---
 
@@ -119,4 +119,4 @@ Contributions, bug reports, and feature requests are welcome! Please open an iss
 
 ---
 
-**Built with ❤️ by [Yusuf Kerman](https://github.com/yusufkerman)**
+**Built by [Yusuf Kerman](https://github.com/yusufkerman)**
