@@ -1,9 +1,14 @@
-// framework/include/executive/cyclic_executor.h
-// Public API for the cyclic executive. Header contains declarations only.
-// Responsibility: declare init and tick entry points operating on an ExecContext.
+/**
+ * @file executive/cyclic_executor.h
+ * @brief Public API for the cyclic executive scheduler.
+ *
+ * This header declares the initialization and tick functions for the cyclic
+ * executive. The executor operates on an `ExecContext` provided by the caller
+ * and processes minor frames deterministically based on a monotonic time source.
+ */
 
-#ifndef DFW_CYCLIC_EXECUTOR_H
-#define DFW_CYCLIC_EXECUTOR_H
+#ifndef NIMBLE_CYCLIC_EXECUTOR_H
+#define NIMBLE_CYCLIC_EXECUTOR_H
 
 #include <cstddef>
 #include <cstdint>
@@ -14,15 +19,28 @@
 #include "policy/overrun_policy.h"
 #include "core/time.h"
 
-namespace dfw {
+namespace nimble {
 
-// Initialize the provided ExecContext for cyclic execution.
-// - `ctx` must point to caller-provided ExecContext storage.
-// - `devices`, `schedules`, `health_buffer`, `state_buffer` must remain valid
-//    for the lifetime of the context (caller-owned storage).
-// - `initial_schedule` picks the active schedule index.
-// - `time_source` is required for correct timing behavior.
-// Returns true on success, false for invalid arguments.
+/**
+ * @brief Initialize a cyclic executive context.
+ *
+ * This function sets up the provided `ExecContext` for cyclic execution.
+ * It stores pointers to caller-owned buffers and schedules, computes the
+ * major-frame duration, initializes device states, and calls device init()
+ * functions.
+ *
+ * @param ctx Pointer to caller-allocated ExecContext.
+ * @param devices Device table (caller-owned, must remain valid).
+ * @param device_count Number of devices in the table.
+ * @param schedules Schedule table (caller-owned, must remain valid).
+ * @param schedule_count Number of available schedules.
+ * @param initial_schedule Index of the schedule to activate initially.
+ * @param health_buffer Health buffer (length must be >= device_count).
+ * @param state_buffer State buffer (length must be >= device_count).
+ * @param time_source Monotonic time source function.
+ * @param overrun_policy Policy for handling budget overruns.
+ * @return true on success, false if arguments are invalid.
+ */
 bool cyclic_init(ExecContext* ctx,
                  const Device* devices,
                  size_t device_count,
@@ -34,11 +52,26 @@ bool cyclic_init(ExecContext* ctx,
                  TimeSourceFn time_source,
                  OverrunPolicy overrun_policy) noexcept;
 
-// Drive the executor using an absolute monotonic time (microseconds).
-// This call may execute one or more minor frames if `current_time_us` has advanced.
+/**
+ * @brief Drive the executor with an explicit time value.
+ *
+ * This function checks if the current minor frame's deadline has passed.
+ * If so, it executes the minor and advances to the next minor. Multiple
+ * minors may be executed if time has advanced significantly.
+ *
+ * @param ctx Pointer to initialized ExecContext.
+ * @param current_time_us Current monotonic time in microseconds.
+ */
 void cyclic_tick_us(ExecContext* ctx, uint64_t current_time_us) noexcept;
 
-// Convenience: call tick using the context's TimeSourceFn.
+/**
+ * @brief Drive the executor using the context's time source.
+ *
+ * This is a convenience wrapper that calls `cyclic_tick_us()` with the
+ * current time obtained from `ctx->time_source()`.
+ *
+ * @param ctx Pointer to initialized ExecContext.
+ */
 void cyclic_poll(ExecContext* ctx) noexcept;
 
 // Query helpers (trivial inline)
@@ -51,6 +84,7 @@ static inline uint64_t cyclic_current_minor_deadline_us(const ExecContext* ctx) 
     return ctx->minor_start_time_us + s.minors[ctx->current_minor].duration_us;
 }
 
-} // namespace dfw
 
-#endif // DFW_CYCLIC_EXECUTOR_H
+} // namespace nimble
+
+#endif // NIMBLE_CYCLIC_EXECUTOR_H

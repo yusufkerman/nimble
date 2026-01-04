@@ -1,10 +1,15 @@
-// framework/include/executive/executive_context.h
-// Execution context struct holding all runtime state for the cyclic executive.
-// Responsibility: own opaque runtime pointers and configuration; no behavior implemented here.
-// WHY: Moving state into a context enables instance-based executors and removes header statics.
+/**
+ * @file executive/executive_context.h
+ * @brief Runtime context for the cyclic executive.
+ *
+ * This header defines the `ExecContext` structure which holds all mutable
+ * state needed by the executor at runtime. By keeping all state in a single
+ * context struct, the design supports multiple executor instances and avoids
+ * hidden global state.
+ */
 
-#ifndef DFW_EXECUTIVE_CONTEXT_H
-#define DFW_EXECUTIVE_CONTEXT_H
+#ifndef NIMBLE_EXECUTIVE_CONTEXT_H
+#define NIMBLE_EXECUTIVE_CONTEXT_H
 
 #include <cstddef>
 #include <cstdint>
@@ -15,35 +20,40 @@
 #include "schedule/schedule_defs.h"
 #include "policy/overrun_policy.h"
 
-namespace dfw {
+namespace nimble {
 
+/**
+ * @struct ExecContext
+ * @brief Runtime state for a cyclic executive instance.
+ *
+ * This structure holds all configuration, buffers, and timing state needed
+ * by the executor. The caller must provide and own all pointed-to memory
+ * (devices, schedules, health, states) for the lifetime of the context.
+ * No dynamic allocation occurs within the executor.
+ */
 struct ExecContext {
-    // Immutable configuration pointers (provided by caller).
-    const Device* devices = nullptr;
-    size_t device_count = 0;
+    const Device* devices = nullptr;    /**< Device table (caller-owned). */
+    size_t device_count = 0;            /**< Number of devices in table. */
 
-    const ScheduleDef* schedules = nullptr;
-    size_t schedule_count = 0;
+    const ScheduleDef* schedules = nullptr; /**< Schedule table (caller-owned). */
+    size_t schedule_count = 0;              /**< Number of available schedules. */
 
-    // Runtime buffers (caller-provided storage)
-    Health* health = nullptr;           // len == device_count
-    DeviceState* states = nullptr;      // len == device_count
+    Health* health = nullptr;           /**< Health buffer (length == device_count). */
+    DeviceState* states = nullptr;      /**< State buffer (length == device_count). */
 
-    // Time source for runtime measurement (caller-provided)
-    TimeSourceFn time_source = nullptr;
+    TimeSourceFn time_source = nullptr; /**< Monotonic time source function. */
 
-    // Policy choices
-    OverrunPolicy overrun_policy = OverrunPolicy::DropTask;
+    OverrunPolicy overrun_policy = OverrunPolicy::DropTask; /**< Overrun handling policy. */
 
-    // Active schedule/minor indices and timing
-    size_t active_schedule = 0;
-    size_t pending_schedule = SIZE_MAX; // SIZE_MAX means none pending
-    size_t current_minor = 0;
-    uint64_t minor_start_time_us = 0; // start timestamp of the active minor
-    uint64_t minor_used_us = 0;       // deterministic accounting for the active minor
-    uint64_t schedule_major_us = 0;   // total major-frame duration for active schedule
+    size_t active_schedule = 0;         /**< Index of currently active schedule. */
+    size_t pending_schedule = SIZE_MAX; /**< Pending schedule (SIZE_MAX = none). */
+    size_t current_minor = 0;           /**< Index of current minor within active schedule. */
+    uint64_t minor_start_time_us = 0;   /**< Start timestamp of current minor (µs). */
+    uint64_t minor_used_us = 0;         /**< Deterministic budget used in current minor (µs). */
+    uint64_t schedule_major_us = 0;     /**< Total duration of active schedule's major frame (µs). */
 };
 
-} // namespace dfw
 
-#endif // DFW_EXECUTIVE_CONTEXT_H
+} // namespace nimble
+
+#endif // NIMBLE_EXECUTIVE_CONTEXT_H

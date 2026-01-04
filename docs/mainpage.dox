@@ -1,0 +1,195 @@
+/**
+ * @mainpage Nimble - Device Framework for Embedded Systems
+ * @section intro_sec Introduction
+ *
+ * **Nimble (DeviceFramework)** is a lightweight, deterministic execution framework designed
+ * for safety-critical embedded and bare-metal systems. Inspired by Unity's MonoBehaviour
+**Nimble (DeviceFramework)** is a lightweight, deterministic execution framework designed
+ * application logic into manageable components with well-defined lifecycle hooks and
+ * periodic execution patterns.
+ *
+ * The framework is built with the following principles:
+ * - **Zero Dynamic Allocation**: All memory is statically or caller-allocated
+ * - **Freestanding-Friendly**: Compatible with bare-metal C++17 environments
+ * - **Deterministic Execution**: Predictable, repeatable timing behavior
+ * - **Minimal Overhead**: Compact structures and efficient scheduling
+ * - **Safety-First**: Designed for high-reliability embedded applications
+ *
+ * @section features_sec Core Features
+ *
+ * @subsection device_abstraction Device Abstraction
+ * - Simple POD `Device` structure with init/update function pointers
+ * - Lifecycle hooks: start, stop, fault handling
+ * - Declared WCET (Worst-Case Execution Time) for budget accounting
+ * - Minimal memory footprint suitable for resource-constrained systems
+ *
+ * @subsection cyclic_executive Cyclic Executive Scheduler
+ * - Offline-computed static schedules with major/minor frames
+ * - Deterministic device execution order within minor frames
+ * - Per-frame budget enforcement using declared WCET values
+ * - Configurable overrun policies (DropTask, SkipFrame, SignalFault, ResetSystem)
+ * - Support for multiple schedules with safe mode switching at major-frame boundaries
+ * - Time-triggered execution driven by caller-provided monotonic time source
+ *
+ * @subsection health_monitoring Health Monitoring
+/**
+ * @mainpage Nimble - Device Framework for Embedded Systems
+ *
+ * @section intro_sec Introduction
+ *
+ * **Nimble (DeviceFramework)** is a lightweight, deterministic execution framework designed
+ * for safety-critical embedded and bare-metal systems. Nimble provides a clean abstraction
+ * for organizing device drivers and application logic into manageable components with
+ * well-defined lifecycle hooks and periodic execution patterns.
+ *
+ * The framework is built with the following principles:
+ * - **Zero Dynamic Allocation**: All memory is statically or caller-allocated
+ * - **Freestanding-Friendly**: Compatible with bare-metal C++17 environments
+ * - **Deterministic Execution**: Predictable, repeatable timing behavior
+ * - **Minimal Overhead**: Compact structures and efficient scheduling
+ * - **Safety-First**: Designed for high-reliability embedded applications
+ *
+ * @section features_sec Core Features
+ *
+ * @subsection device_abstraction Device Abstraction
+ * - Simple POD `Device` structure with init/update function pointers
+ * - Lifecycle hooks: start, stop, fault handling
+ * - Declared WCET (Worst-Case Execution Time) for budget accounting
+ * - Minimal memory footprint suitable for resource-constrained systems
+ *
+ * @subsection cyclic_executive Cyclic Executive Scheduler
+ * - Offline-computed static schedules with major/minor frames
+ * - Deterministic device execution order within minor frames
+ * - Per-frame budget enforcement using declared WCET values
+ * - Configurable overrun policies (DropTask, SkipFrame, SignalFault, ResetSystem)
+ * - Support for multiple schedules with safe mode switching at major-frame boundaries
+ * - Time-triggered execution driven by caller-provided monotonic time source
+ *
+ * @subsection health_monitoring Health Monitoring
+ * - Execution counters and overrun tracking per device
+ * - Runtime WCET measurement and max execution time recording
+ * - Caller-provided health buffers (no hidden allocations)
+ *
+ * @subsection modular_design Modular Architecture
+ * - Clean separation of concerns across header modules:
+ *   - `core/` - Device, Health, Time abstractions
+ *   - `schedule/` - Schedule definitions (MinorFrame, Schedule)
+ *   - `policy/` - Overrun and catch-up policies
+ *   - `executive/` - Executor context and implementation
+ * - No global state in headers (instance-based design)
+ * - Easy to integrate into existing codebases
+ *
+ * @section architecture_sec Architecture Overview
+ *
+ * @subsection arch_device Device Layer
+ * The `Device` structure (`nimble::Device`) is the fundamental building block. Each device
+ * represents a logical component with:
+ * - Initialization function called once at startup
+ * - Update function called periodically by the scheduler
+ * - Optional lifecycle hooks for state transitions
+ * - Declared period and WCET for scheduling analysis
+ *
+ * @subsection arch_schedule Schedule Layer
+ * Static schedules define the execution plan:
+ * - **Minor Frames** (`nimble::MinorFrameDef`): Groups of devices executed within a fixed budget
+ * - **Major Frames** (`nimble::ScheduleDef`): Sequences of minor frames that repeat cyclically
+ * - Schedules are compile-time constants ensuring deterministic behavior
+ *
+ * @subsection arch_executor Executor Layer
+ * The cyclic executor (`nimble::cyclic_init`, `nimble::cyclic_tick_us`) drives execution:
+ * - Maintains runtime context (`nimble::ExecContext`) with all mutable state
+ * - Polls monotonic time source and executes ready minor frames
+ * - Enforces budgets deterministically using declared WCET
+ * - Updates health statistics and invokes lifecycle hooks
+ *
+ * @section usage_sec Quick Start
+ *
+ * @subsection usage_device Define Devices
+ * @code{.cpp}
+ * #include "framework/include/core/device.h"
+ *
+ * void sensor_init(nimble::Device* d) { /* Initialize sensor */ }
+ * void sensor_update(nimble::Device* d) { /* Read sensor data */ }
+ *
+ * static nimble::Device devices[] = {
+ *     { sensor_init, sensor_update, 1000, 500, nullptr, nullptr, nullptr }
+ * };
+ * @endcode
+ *
+ * @subsection usage_schedule Define Schedule
+ * @code{.cpp}
+ * #include "framework/include/schedule/schedule_defs.h"
+ *
+ * static const uint16_t minor0_devs[] = { 0 }; // device indices
+ * static const nimble::MinorFrameDef minors[] = {
+ *     { minor0_devs, 1, 100000 } // 100ms frame
+ * };
+ * static const nimble::ScheduleDef schedules[] = { { minors, 1 } };
+ * @endcode
+ *
+ * @subsection usage_init Initialize Executor
+ * @code{.cpp}
+ * #include "framework/include/executive/cyclic_executor.h"
+ *
+ * static nimble::Health health[1];
+ * static nimble::DeviceState states[1];
+ * static nimble::ExecContext ctx;
+ *
+ * nimble::cyclic_init(&ctx, devices, 1, schedules, 1, 0,
+ *                  health, states, my_time_source,
+ *                  nimble::OverrunPolicy::DropTask);
+ * @endcode
+ *
+ * @subsection usage_run Drive Execution
+ * @code{.cpp}
+ * // In main loop
+ * while (true) {
+ *     nimble::cyclic_poll(&ctx); // uses context's time source
+ * }
+ * @endcode
+ *
+ * @section constraints_sec Design Constraints
+ *
+ * - **No Dynamic Memory**: All allocations are static or caller-provided
+ * - **No Exceptions**: Compatible with `-fno-exceptions`
+ * - **No RTTI**: Compatible with `-fno-rtti`
+ * - **Minimal STL**: Only `<cstdint>`, `<cstddef>` dependencies
+ * - **C++17**: Requires C++17 compiler (no newer features)
+ * - **Single-Threaded**: Current implementation assumes single-threaded execution
+ * - **Monotonic Time**: Requires non-decreasing microsecond time source
+ *
+ * @section safety_sec Safety Features
+ *
+ * - **Saturating Arithmetic**: Prevents time overflow in next-release calculations
+ * - **Static Schedulability**: Optional compile-time WCET sum validation
+ * - **Deterministic Overruns**: Configurable, repeatable behavior on budget violations
+ * - **Fault Isolation**: Per-device fault states prevent fault propagation
+ * - **No Hidden State**: All mutable state visible in ExecContext
+ *
+ * @section future_sec Future Extensions
+ *
+ * Planned features (not yet implemented):
+ * - Legacy periodic scheduler with next-release mode
+ * - Multi-threaded executor variants with RTOS integration
+ * - Runtime schedule switching APIs
+ * - Enhanced telemetry and logging hooks
+ * - Integration with static analysis tools (WCET analyzers)
+ *
+ * @section license_sec License
+ *
+ * This project is open-source. See the repository for license details.
+ *
+ * @section contact_sec Contact & Contributing
+ *
+ * - GitHub: https://github.com/yourusername/nimble
+ * - Issues and contributions welcome
+ * - Follow coding style and determinism principles when contributing
+ *
+ * @section modules_sec Module Reference
+ *
+ * Browse the modules below to explore the framework API:
+ * - @ref nimble "Nimble Namespace" - All framework types and functions
+ * - Core abstractions: nimble::Device, nimble::Health, nimble::DeviceState
+ * - Schedule definitions: nimble::MinorFrameDef, nimble::ScheduleDef
+ * - Executor API: nimble::cyclic_init(), nimble::cyclic_tick_us(), nimble::cyclic_poll()
+ * - Policies: nimble::OverrunPolicy, nimble::CatchUpPolicy

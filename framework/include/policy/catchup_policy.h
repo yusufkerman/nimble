@@ -1,25 +1,34 @@
-// framework/include/policy/catchup_policy.h
-// Catch-up policy definitions for legacy periodic execution.
-// Responsibility: enumerate deterministic catch-up strategies (policy only).
-// WHY: Keep decision vocabulary separate from executor implementation.
+/**
+ * @file policy/catchup_policy.h
+ * @brief Catch-up policy for periodic task scheduling.
+ *
+ * This header defines policy choices for handling missed periodic releases
+ * when the system falls behind real-time. Used by legacy periodic executors
+ * (not by the cyclic executive).
+ */
 
-#ifndef DFW_POLICY_CATCHUP_H
-#define DFW_POLICY_CATCHUP_H
+#ifndef NIMBLE_POLICY_CATCHUP_H
+#define NIMBLE_POLICY_CATCHUP_H
 
 #include <cstdint>
 
-namespace dfw {
+namespace nimble {
 
-// How to handle missed activations when the system falls behind.
+/**
+ * @enum CatchUpPolicy
+ * @brief Policy for catching up on missed periodic activations.
+ *
+ * When a periodic task falls behind its next-release time, this policy
+ * determines whether missed activations should be executed immediately,
+ * bounded, or skipped entirely.
+ */
 enum class CatchUpPolicy : uint8_t {
-    // Execute every missed activation until current time (may cause bursts)
-    CatchAll = 0,
-    // Execute up to a bounded number of missed activations (caller-defined in executor)
-    Limited,
-    // Skip missed activations and wait for next scheduled release
-    SkipMisses,
+    CatchAll = 0, /**< Execute all missed activations (may cause bursts). */
+    Limited,      /**< Execute up to a bounded number of missed activations. */
+    SkipMisses,   /**< Skip missed activations and wait for next release. */
 };
 
-} // namespace dfw
 
-#endif // DFW_POLICY_CATCHUP_H
+} // namespace nimble
+
+#endif // NIMBLE_POLICY_CATCHUP_H

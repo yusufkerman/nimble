@@ -14,7 +14,7 @@
 #include "framework/include/executive/cyclic_executor.h"
 #include "framework/include/policy/overrun_policy.h"
 
-using namespace dfw;
+using namespace nimble;
 
 // Fake monotonic time source (microseconds). In real embedded systems provide
 // a hardware timer or OS monotonic clock.

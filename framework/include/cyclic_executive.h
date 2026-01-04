@@ -7,13 +7,13 @@
 //   - framework/include/schedule/schedule_defs.h
 // This file now forwards to the new cyclic executor public header.
 
-#ifndef DFW_CYCLIC_EXECUTIVE_DEPRECATED_H
-#define DFW_CYCLIC_EXECUTIVE_DEPRECATED_H
+#ifndef NIMBLE_CYCLIC_EXECUTIVE_DEPRECATED_H
+#define NIMBLE_CYCLIC_EXECUTIVE_DEPRECATED_H
 
 // Forward to the canonical cyclic executor header.
 #include "executive/cyclic_executor.h"
 
-#endif // DFW_CYCLIC_EXECUTIVE_DEPRECATED_H
+#endif // NIMBLE_CYCLIC_EXECUTIVE_DEPRECATED_H
 
     // Overrun actions in cyclic mode (minor-frame exceeding budget)
     enum class OverrunPolicy { DropTask, SkipFrame, SignalFault, ResetSystem };
@@ -298,7 +298,7 @@ private:
     static inline uint32_t major_frame_ms_ = 0;
 };
 
-} // namespace dfw
+} // namespace nimble
 // Cyclic executive manager: supports both legacy periodic next-release
 // mode and a true offline major/minor cyclic executive suitable for
 // safety-critical embedded systems.
@@ -315,7 +315,7 @@ private:
 #include <cstdint>
 #include "device.h"
 
-namespace dfw {
+namespace nimble {
 
 // Special value meaning "never schedule".
 static constexpr uint64_t kNever = UINT64_MAX;
@@ -590,7 +590,7 @@ private:
     static inline uint32_t major_frame_ms_ = 0;
 };
 
-} // namespace dfw
+} // namespace nimble
 // Cyclic executive manager: holds a static table of `Device` and ticks them
 // according to their `period_ms` inside a manually-provided major frame.
 
@@ -600,7 +600,7 @@ private:
 #include <cstdint>
 #include "device.h"
 
-namespace dfw {
+namespace nimble {
 
 // Special value meaning "never schedule". Use UINT64_MAX to avoid
 // <limits> dependency and keep this header friendly to freestanding/toolchain-restricted builds.
@@ -750,4 +750,4 @@ private:
     static inline uint32_t max_catchups_ = 1;
 };
 
-} // namespace dfw
+} // namespace nimble

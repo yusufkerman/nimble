@@ -1,27 +1,36 @@
-// framework/include/policy/overrun_policy.h
-// Overrun policy vocabulary and deterministic decision enums.
-// Responsibility: declare how an executor should interpret an overrun event.
-// WHY: Executors call policy decisions; policy header contains only the decision space.
+/**
+ * @file policy/overrun_policy.h
+ * @brief Overrun handling policy enumeration.
+ *
+ * This header defines the deterministic policy choices for handling budget
+ * overruns in the cyclic executive. When a device's declared WCET would exceed
+ * the remaining minor frame budget, the executor consults this policy to decide
+ * what action to take.
+ */
 
-#ifndef DFW_POLICY_OVERRUN_H
-#define DFW_POLICY_OVERRUN_H
+#ifndef NIMBLE_POLICY_OVERRUN_H
+#define NIMBLE_POLICY_OVERRUN_H
 
 #include <cstdint>
 
-namespace dfw {
+namespace nimble {
 
-// High-level actions an executor may take when detecting an overrun or budget breach.
+/**
+ * @enum OverrunPolicy
+ * @brief Policy for handling minor-frame budget overruns.
+ *
+ * The executor applies this policy when a device's declared WCET would cause
+ * the cumulative minor-frame budget to be exceeded. The policy choice determines
+ * whether the offending task is skipped, the frame is aborted, or a fault is raised.
+ */
 enum class OverrunPolicy : uint8_t {
-    // Skip the offending task and continue with next tasks deterministically.
-    DropTask = 0,
-    // Stop executing remaining tasks in the current minor frame.
-    SkipFrame,
-    // Mark the device as faulted; executor/platform may run fault hooks.
-    SignalFault,
-    // Trigger a system reset hook (executor calls provided reset callback).
-    ResetSystem,
+    DropTask = 0,   /**< Skip the offending task; continue with remaining tasks. */
+    SkipFrame,      /**< Stop executing remaining tasks in this minor frame. */
+    SignalFault,    /**< Mark the device as faulted and invoke fault hooks. */
+    ResetSystem,    /**< Trigger system reset hook (platform-defined). */
 };
 
-} // namespace dfw
 
-#endif // DFW_POLICY_OVERRUN_H
+} // namespace nimble
+
+#endif // NIMBLE_POLICY_OVERRUN_H

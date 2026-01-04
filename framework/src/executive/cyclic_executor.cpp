@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <cstddef>
 
-namespace dfw {
+namespace nimble {
 
 namespace {
 // Saturating add to avoid overflow; kNever semantics not required here but keep safe.
@@ -148,4 +148,4 @@ void cyclic_poll(ExecContext* ctx) noexcept {
     cyclic_tick_us(ctx, ctx->time_source());
 }
 
-} // namespace dfw
+} // namespace nimble
