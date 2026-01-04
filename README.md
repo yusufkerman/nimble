@@ -32,9 +32,9 @@ The documentation is generated with **Doxygen** and published via **GitHub Pages
 
 ### 1. Include Headers
 ```cpp
-#include "framework/include/core/device.h"
-#include "framework/include/schedule/schedule_defs.h"
-#include "framework/include/executive/cyclic_executor.h"
+#include "core/device.h"
+#include "schedule/schedule_defs.h"
+#include "executive/cyclic_executor.h"
 ```
 
 ### 2. Define Your Devices
@@ -74,7 +74,7 @@ while (true) {
 }
 ```
 
-See the **[`examples/`](examples/)** directory for more examples.
+For a full walkthrough, see the docs site or the repository README.
 
 ---
 
@@ -91,19 +91,9 @@ See the **[`examples/`](examples/)** directory for more examples.
 
 ## 🔨 Build & Integration
 
-1. **Include** headers from `framework/include/`
-2. **Link** compiled objects from `framework/src/`
+1. **Include** headers from `include/` (e.g., add `-Iinclude`)
+2. **Link** compiled objects from `src/`
 3. **Recommended flags:** `-std=c++17 -O2 -fno-exceptions -fno-rtti`
-
----
-
-## 📖 Examples
-
-Check out the **[`examples/`](examples/)** directory for practical usage patterns:
-- Basic cyclic scheduling
-- Multi-frame coordination
-- Health monitoring
-- Fault handling
 
 ---
 

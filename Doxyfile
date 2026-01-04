@@ -8,11 +8,15 @@ EXTRACT_ALL            = YES
 EXTRACT_PRIVATE        = NO
 EXTRACT_STATIC         = NO
 RECURSIVE              = YES
-INPUT                  = framework/include framework/src mainpage.dox
+INPUT                  = include src mainpage.dox
 FILE_PATTERNS          = *.h *.hpp *.c *.cpp *.dox
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
-HTML_EXTRA_STYLESHEET  = docs/doxygen-awesome-css/doxygen-awesome.css
+HTML_EXTRA_STYLESHEET  = doxygen-awesome-css/doxygen-awesome.css \
+						 doxygen-awesome-css/doxygen-awesome-sidebar-only.css
+HTML_EXTRA_FILES       = doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js \
+						 doxygen-awesome-css/doxygen-awesome-fragment-copy-button.js \
+						 doxygen-awesome-css/doxygen-awesome-paragraph-link.js
 GENERATE_LATEX         = NO
 QUIET                  = NO
 WARN_LOGFILE           = doxygen_warnings.log

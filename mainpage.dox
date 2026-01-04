@@ -47,9 +47,9 @@
  * - Pluggable overrun and catch-up policies (drop, skip, signal, reset)
  * 
  * **Runtime Properties**
- * - No dynamic memory allocation — all buffers pre-allocated by caller
- * - No exceptions or RTTI — suitable for freestanding environments
- * - Single-threaded by design (easy to adapt to RTOS)
+ * #include "core/device.h"
+ * #include "schedule/schedule_defs.h"
+ * #include "executive/cyclic_executor.h"
  * - Minimal dependencies; intended for resource-constrained targets
  * - Explicit state management: all mutable state lives in `nimble::ExecContext`
  * 
@@ -65,10 +65,10 @@
  * 
  * | Layer | Location | Purpose |
  * |-------|----------|---------|
- * | **Core** | `framework/include/core/` | Fundamental abstractions: `Device`, `Health`, `Time` |
- * | **Schedule** | `framework/include/schedule/` | Schedule structure definitions |
- * | **Policy** | `framework/include/policy/` | Overrun and catch-up strategy enums |
- * | **Executive** | `framework/include/executive/` + `framework/src/executive/` | Runtime driver and cyclic executor |
+| **Core** | `include/core/` | Fundamental abstractions: `Device`, `Health`, `Time` |
+| **Schedule** | `include/schedule/` | Schedule structure definitions |
+| **Policy** | `include/policy/` | Overrun and catch-up strategy enums |
+| **Executive** | `include/executive/` + `src/executive/` | Runtime driver and cyclic executor |
  * 
  * @subsection arch_device Device Model
  * 
@@ -111,15 +111,15 @@
  * - **Frame Progression** — Determine when each minor frame should start based on elapsed time
  * - **Device Invocation** — Invoke the `update` callback for each device listed in the current minor frame
  * - **Budget Enforcement** — Track execution times against declared WCET and enforce per-frame budgets
- * - **Health Tracking** — Update `nimble::Health` counters and record overruns/underruns
- * - **Policy Application** — Invoke pluggable policies on overrun/catch-up decisions
+* 
+* For an end-to-end walkthrough, see the README in the repository root.
  * - **Lifecycle Management** — Call init/start/stop/on_fault callbacks as appropriate
  *
  * @section api_sec Public API Summary
  * 
  * **Initialization**
- * - `nimble::cyclic_init(...)` — Initialize the runtime with devices, schedules, and policies
- * 
+1. Include headers from `include/` in your source files (e.g., add `-Iinclude`)
+2. Compile and link object files from `src/`
  * **Execution**
  * - `nimble::cyclic_poll(ExecContext*)` — Drive one iteration of the executor (time-driven)
  * - `nimble::cyclic_tick_us(ExecContext*, uint64_t)` — Advance executor with explicit time value
@@ -139,9 +139,9 @@
  * Here's a minimal example of setting up and running Nimble:
  * 
  * @code{.cpp}
- * #include "framework/include/core/device.h"
- * #include "framework/include/schedule/schedule_defs.h"
- * #include "framework/include/executive/cyclic_executor.h"
+ * #include "core/device.h"
+ * #include "schedule/schedule_defs.h"
+ * #include "executive/cyclic_executor.h"
  * #include <cstdint>
  * 
  * // Device callbacks
@@ -204,14 +204,14 @@
  * }
  * @endcode
  * 
- * For more examples, see the **`examples/`** directory in the repository.
+ * For an end-to-end walkthrough, see the README in the repository root.
  *
  * @section integration_sec Integration & Build
  * 
  * **Including Nimble in Your Project**
  * 
- * 1. Include headers from `framework/include/` in your source files
- * 2. Compile and link object files from `framework/src/`
+ * 1. Include headers from `include/` in your source files (e.g., add `-Iinclude`)
+ * 2. Compile and link object files from `src/`
  * 3. Ensure your compiler supports C++17 and enable the flags below
  * 
  * **Recommended Compiler Flags**
@@ -228,7 +228,7 @@
  * **Header-Only Usage**
  * 
  * The public API is largely header-based for inline optimization. Only the cyclic executor
- * implementation (in `framework/src/executive/`) requires compilation.
+ * implementation (in `src/executive/`) requires compilation.
  *
  * @section constraints_sec Constraints & Design Notes
  * - No dynamic allocations: all runtime buffers are provided by the caller

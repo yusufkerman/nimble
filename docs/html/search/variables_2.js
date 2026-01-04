@@ -1,7 +1,0 @@
-var searchData=
-[
-  ['device_5fcount_0',['device_count',['../structMinorFrameDef.html#a79775adcaa74fe7e742e4ec5b02fa7b6',1,'MinorFrameDef::device_count'],['../structnimble_1_1CyclicExecutive_1_1MinorFrameDef.html#a4a722b6b04becd870d468b10c69bb1ba',1,'nimble::CyclicExecutive::MinorFrameDef::device_count'],['../structnimble_1_1ExecContext.html#a6790a8e0f3b933c003ccdeda40c301f9',1,'nimble::ExecContext::device_count'],['../structnimble_1_1MinorFrameDef.html#a4f9f6f7df07d940ad94c32cefb54bc59',1,'nimble::MinorFrameDef::device_count']]],
-  ['device_5findices_1',['device_indices',['../structMinorFrameDef.html#aa43c9d6ac817bc870a83feccc1fdb6a9',1,'MinorFrameDef::device_indices'],['../structnimble_1_1CyclicExecutive_1_1MinorFrameDef.html#a6a1ec66fe9070910be5c01a0604cab1b',1,'nimble::CyclicExecutive::MinorFrameDef::device_indices'],['../structnimble_1_1MinorFrameDef.html#aba619a339a9046984f5fb0d2c2492d96',1,'nimble::MinorFrameDef::device_indices']]],
-  ['devices_2',['devices',['../structnimble_1_1ExecContext.html#a18209a540888cf882fae571a8a6dbed5',1,'nimble::ExecContext']]],
-  ['duration_5fus_3',['duration_us',['../structMinorFrameDef.html#ac1138a7f2c0c0675adb2dbe43c3fff3c',1,'MinorFrameDef::duration_us'],['../structnimble_1_1CyclicExecutive_1_1MinorFrameDef.html#ac7f82b18cf73f83ec1563587ba848be8',1,'nimble::CyclicExecutive::MinorFrameDef::duration_us'],['../structnimble_1_1MinorFrameDef.html#a16521ffea7d20761c9eb235c4b27375e',1,'nimble::MinorFrameDef::duration_us']]]
-];
