@@ -12,11 +12,11 @@ INPUT                  = include src mainpage.dox
 FILE_PATTERNS          = *.h *.hpp *.c *.cpp *.dox
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
-HTML_EXTRA_STYLESHEET  = doxygen-awesome-css/doxygen-awesome.css \
-						 doxygen-awesome-css/doxygen-awesome-sidebar-only.css
-HTML_EXTRA_FILES       = doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js \
-						 doxygen-awesome-css/doxygen-awesome-fragment-copy-button.js \
-						 doxygen-awesome-css/doxygen-awesome-paragraph-link.js
+HTML_EXTRA_STYLESHEET  = https://raw.githubusercontent.com/jothepro/doxygen-awesome-css/v2.3.3/doxygen-awesome.css \
+				 https://raw.githubusercontent.com/jothepro/doxygen-awesome-css/v2.3.3/doxygen-awesome-sidebar-only.css
+HTML_EXTRA_FILES       = https://raw.githubusercontent.com/jothepro/doxygen-awesome-css/v2.3.3/doxygen-awesome-darkmode-toggle.js \
+				 https://raw.githubusercontent.com/jothepro/doxygen-awesome-css/v2.3.3/doxygen-awesome-fragment-copy-button.js \
+				 https://raw.githubusercontent.com/jothepro/doxygen-awesome-css/v2.3.3/doxygen-awesome-paragraph-link.js
 GENERATE_LATEX         = NO
 QUIET                  = NO
 WARN_LOGFILE           = doxygen_warnings.log
